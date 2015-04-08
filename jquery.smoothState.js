@@ -46,6 +46,11 @@
             
             /** The number of pages smoothState will try to store in memory and not request again */
             pageCacheSize : 0,
+
+            /** A function that can be used when link is clicked */
+            onClick : function (event) {
+                // Nothing
+            },
             
             /** A function that can be used to alter urls before they are used to request content */
             alterRequestUrl : function (url) {
