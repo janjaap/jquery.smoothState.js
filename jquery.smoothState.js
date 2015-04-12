@@ -1,35 +1,39 @@
 /**
  * smoothState.js is a jQuery plugin to stop page load jank.
  *
- * This jQuery plugin progressively enhances page loads to 
+ * This jQuery plugin progressively enhances page loads to
  * behave more like a single-page application.
  *
  * @author  Miguel Ángel Pérez   reachme@miguel-perez.com
  * @see     https://github.com/miguel-perez/jquery.smoothState.js
- * 
+ *
  */
 ;(function ( $, window, document, undefined ) {
     "use strict";
 
     /** Abort plugin if browser does not suppost pushState */
-    if(!history.pushState) {
+    if (!history.pushState) {
         // setup a dummy fn, but don't intercept on link clicks
-        $.fn.smoothState = function() { return this; };
+        $.fn.smoothState = function () {
+            return this;
+        };
         $.fn.smoothState.options = {};
         return;
     }
-
     /** Abort if smoothstate is already present **/
-    if($.fn.smoothState) { return; }
+    if ($.fn.smoothState) {
+        console.log('returning');
+        return;
+    }
 
     var
         /** Used later to scroll page to the top */
-        $body       = $("html, body"),
-        
+        $body       = $('html, body'),
+
         /** Used in development mode to console out useful warnings */
         consl       = (window.console || false),
-        
-        /** Plugin default options, will be exposed as $fn.smoothState.options */
+
+        /** Plugin default options */
         defaults    = {
 
             /** jquery element string to specify which anchors smoothstate should bind to */
@@ -37,13 +41,13 @@
 
             /** If set to true, smoothState will prefetch a link's contents on hover */
             prefetch : false,
-            
+
             /** A selecor that deinfes with links should be ignored by smoothState */
             blacklist : ".no-smoothstate, [target]",
-            
+
             /** If set to true, smoothState will log useful debug information instead of aborting */
             development : false,
-            
+
             /** The number of pages smoothState will try to store in memory and not request again */
             pageCacheSize : 0,
 
@@ -51,12 +55,12 @@
             onClick : function (event) {
                 // Nothing
             },
-            
+
             /** A function that can be used to alter urls before they are used to request content */
             alterRequestUrl : function (url) {
                 return url;
             },
-            
+
             /** Run when a link has been activated */
             onStart : {
                 duration: 0,
@@ -69,8 +73,8 @@
             onProgress : {
                 duration: 0,
                 render: function (url, $container) {
-                    $body.css("cursor", "wait");
-                    $body.find("a").css("cursor", "wait");
+                    $body.css('cursor', 'wait');
+                    $body.find('a').css('cursor', 'wait');
                 }
             },
 
@@ -78,8 +82,8 @@
             onEnd : {
                 duration: 0,
                 render: function (url, $container, $content) {
-                    $body.css("cursor", "auto");
-                    $body.find("a").css("cursor", "auto");
+                    $body.css('cursor', 'auto');
+                    $body.find('a').css('cursor', 'auto');
                     $container.html($content);
                 }
             },
@@ -89,7 +93,7 @@
 
             }
         },
-        
+
         /** Utility functions that are decoupled from SmoothState */
         utility     = {
 
@@ -97,14 +101,14 @@
              * Checks to see if the url is external
              * @param   {string}    url - url being evaluated
              * @see     http://stackoverflow.com/questions/6238351/fastest-way-to-detect-external-urls
-             * 
+             *
              */
             isExternal: function (url) {
                 var match = url.match(/^([^:\/?#]+:)?(?:\/\/([^\/?#]*))?([^?#]+)?(\?[^#]*)?(#.*)?/);
-                if (typeof match[1] === "string" && match[1].length > 0 && match[1].toLowerCase() !== window.location.protocol) {
+                if (typeof match[1] === "string" && match[1].length > 0 && match[1].toLowerCase() !== location.protocol) {
                     return true;
                 }
-                if (typeof match[2] === "string" && match[2].length > 0 && match[2].replace(new RegExp(":(" + {"http:": 80, "https:": 443}[window.location.protocol] + ")?$"), "") !== window.location.host) {
+                if (typeof match[2] === "string" && match[2].length > 0 && match[2].replace(new RegExp(":(" + {"http:": 80, "https:": 443}[location.protocol] + ")?$"), "") !== location.host) {
                     return true;
                 }
                 return false;
@@ -113,7 +117,7 @@
             /**
              * Checks to see if the url is an internal hash
              * @param   {string}    url - url being evaluated
-             * 
+             *
              */
             isHash: function (url) {
                 var hasPathname = (url.indexOf(window.location.pathname) > 0) ? true : false,
@@ -125,11 +129,11 @@
              * Checks to see if we should be loading this URL
              * @param   {string}    url - url being evaluated
              * @param   {string}    blacklist - jquery selector
-             * 
+             *
              */
             shouldLoad: function ($anchor, blacklist) {
                 var url = $anchor.prop("href");
-                // URL will only be loaded if it"s not an external link, hash, or blacklisted
+                // URL will only be loaded if it's not an external link, hash, or blacklisted
                 return (!utility.isExternal(url) && !utility.isHash(url) && !$anchor.is(blacklist));
             },
 
@@ -138,25 +142,25 @@
              * @param   {string}    url - url being evaluated
              * @author  Ben Alman   http://benalman.com/
              * @see     https://gist.github.com/cowboy/742952
-             * 
+             *
              */
             htmlDoc: function (html) {
                 var parent,
                     elems       = $(),
                     matchTag    = /<(\/?)(html|head|body|title|base|meta)(\s+[^>]*)?>/ig,
-                    prefix      = "ss" + Math.round(Math.random() * 100000),
+                    prefix      = 'ss' + Math.round(Math.random() * 100000),
                     htmlParsed  = html.replace(matchTag, function(tag, slash, name, attrs) {
                         var obj = {};
                         if (!slash) {
-                            $.merge(elems, $("<" + name + "/>"));
+                            elems = elems.add('<' + name + '/>');
                             if (attrs) {
-                                $.each($("<div" + attrs + "/>")[0].attributes, function(i, attr) {
+                                $.each($('<div' + attrs + '/>')[0].attributes, function(i, attr) {
                                     obj[attr.name] = attr.value;
                                 });
                             }
                             elems.eq(-1).attr(obj);
                         }
-                        return "<" + slash + "div" + (slash ? "" : " id='" + prefix + (elems.length - 1) + "'") + ">";
+                        return '<' + slash + 'div' + (slash ? '' : ' id="' + prefix + (elems.length - 1) + '"') + '>';
                     });
 
                 // If no placeholder elements were necessary, just return normal
@@ -166,14 +170,14 @@
                 }
                 // Create parent node if it hasn't been created yet.
                 if (!parent) {
-                    parent = $("<div/>");
+                    parent = $('<div/>');
                 }
                 // Create the parent node and append the parsed, place-held HTML.
                 parent.html(htmlParsed);
-                
+
                 // Replace each placeholder element with its intended element.
                 $.each(elems, function(i) {
-                    var elem = parent.find("#" + prefix + i).before(elems[i]);
+                    var elem = parent.find('#' + prefix + i).before(elems[i]);
                     elems.eq(i).html(elem.contents());
                     elem.remove();
                 });
@@ -184,14 +188,14 @@
             /**
              * Resets an object if it has too many properties
              *
-             * This is used to clear the "cache" object that stores
+             * This is used to clear the 'cache' object that stores
              * all of the html. This would prevent the client from
-             * running out of memory and allow the user to hit the 
+             * running out of memory and allow the user to hit the
              * server for a fresh copy of the content.
              *
              * @param   {object}    obj
              * @param   {number}    cap
-             * 
+             *
              */
             clearIfOverCapacity: function (obj, cap) {
                 // Polyfill Object.keys if it doesn't exist
@@ -219,7 +223,7 @@
              * Finds the inner content of an element, by an ID, from a jQuery object
              * @param   {string}    id
              * @param   {object}    $html
-             * 
+             *
              */
             getContentById: function (id, $html) {
                 $html = ($html instanceof jQuery) ? $html : utility.htmlDoc($html);
@@ -234,7 +238,7 @@
              * @param   {object}    object - object contents will be stored into
              * @param   {string}    url - url to be used as the prop
              * @param   {jquery}    html - contents to store
-             * 
+             *
              */
             storePageIn: function (object, url, $html) {
                 $html = ($html instanceof jQuery) ? $html : utility.htmlDoc($html);
@@ -250,7 +254,7 @@
              * Triggers an "allanimationend" event when all animations are complete
              * @param   {object}    $element - jQuery object that should trigger event
              * @param   {string}    resetOn - which other events to trigger allanimationend on
-             * 
+             *
              */
             triggerAllAnimationEndEvent: function ($element, resetOn) {
 
@@ -279,7 +283,7 @@
                 $element.on(animationstart, onAnimationStart);
                 $element.on(animationend, onAnimationEnd);
 
-                $element.on("allanimationend" + resetOn, function(){
+                $element.on("allanimationend" + resetOn, function(e){
                     animationCount = 0;
                     utility.redraw($element);
                 });
@@ -287,18 +291,18 @@
 
             /** Forces browser to redraw elements */
             redraw: function ($element) {
-                $element.height();
-                //setTimeout(function(){$element.height("100%");}, 0);
+                $element.height(0);
+                setTimeout(function(){$element.height('auto');}, 0);
             }
-        }, // eo utility
+        },
 
-        /** Handles the popstate event, like when the user hits "back" */
+        /** Handles the popstate event, like when the user hits 'back' */
         onPopState = function ( e ) {
             if(e.state !== null) {
                 var url     = window.location.href,
-                    $page   = $("#" + e.state.id),
-                    page    = $page.data("smoothState");
-                
+                    $page   = $('#' + e.state.id),
+                    page    = $page.data('smoothState');
+
                 if(page.href !== url && !utility.isHash(url)) {
                     page.load(url, true);
                 }
@@ -310,23 +314,23 @@
             var
                 /** Container element smoothState is run on */
                 $container  = $(element),
-                
+
                 /** Variable that stores pages after they are requested */
                 cache       = {},
-                
+
                 /** Url of the content that is currently displayed */
                 currentHref = window.location.href,
 
                 /**
-                 * Loads the contents of a url into our container 
+                 * Loads the contents of a url into our container
                  *
                  * @param   {string}    url
                  * @param   {bool}      isPopped - used to determine if whe should
                  *                      add a new item into the history object
-                 * 
+                 *
                  */
                 load = function (url, isPopped) {
-                    
+
                     /** Makes this an optional variable by setting a default */
                     isPopped = isPopped || false;
 
@@ -335,7 +339,7 @@
                         hasRunCallback  = false,
 
                         callbBackEnded  = false,
-                        
+
                         /** List of responses for the states of the page request */
                         responses       = {
 
@@ -352,29 +356,30 @@
                                 }
 
                                 if(!isPopped) {
-                                    window.history.pushState({ id: $container.prop("id") }, cache[url].title, url);
+                                    var pageNumber = $(cache[url].html).find('.main-wrapper').attr('data-page');
+                                    history.pushState({ id: $container.prop('id'), page: pageNumber }, cache[url].title, url);
                                 }
                             },
 
                             /** Loading, wait 10 ms and check again */
                             fetching: function() {
-                                
+
                                 if(!hasRunCallback) {
-                                    
+
                                     hasRunCallback = true;
-                                    
+
                                     // Run the onProgress callback and set trigger
                                     $container.one("ss.onStartEnd", function(){
                                         options.onProgress.render(url, $container, null);
-                                        
+
                                         setTimeout(function(){
                                             $container.trigger("ss.onProgressEnd");
                                             callbBackEnded = true;
                                         }, options.onStart.duration);
-                                    
+
                                     });
                                 }
-                                
+
                                 setTimeout(function () {
                                     // Might of been canceled, better check!
                                     if(cache.hasOwnProperty(url)){
@@ -388,11 +393,11 @@
                                 window.location = url;
                             }
                         };
-                    
+
                     if (!cache.hasOwnProperty(url)) {
                         fetch(url);
                     }
-                    
+
                     // Run the onStart callback and set trigger
                     options.onStart.render(url, $container, null);
                     setTimeout(function(){
@@ -407,13 +412,14 @@
                 /** Updates the contents from cache[url] */
                 updateContent = function (url) {
                     // If the content has been requested and is done:
-                    var containerId = "#" + $container.prop("id"),
-                        $content    = cache[url] ? utility.getContentById(containerId, cache[url].html) : null;
+                    var containerId = '#' + $container.prop('id'),
+                        $content    = utility.getContentById(containerId, cache[url].html);
+
 
                     if($content) {
                         document.title = cache[url].title;
-                        $container.data("smoothState").href = url;
-                        
+                        $container.data('smoothState').href = url;
+
                         // Call the onEnd callback and set trigger
                         options.onEnd.render(url, $container, $content);
 
@@ -427,7 +433,7 @@
 
                     } else if (!$content && options.development && consl) {
                         // Throw warning to help debug in development mode
-                        consl.warn("No element with an id of " + containerId + " in response from " + url + " in " + cache);
+                        consl.warn("No element with an id of " + containerId + "' in response from " + url + " in " + object);
                     } else {
                         // No content availble to update with, aborting...
                         window.location = url;
@@ -435,19 +441,17 @@
                 },
 
                 /**
-                 * Fetches the contents of a url and stores it in the "cache" varible
+                 * Fetches the contents of a url and stores it in the 'cache' varible
                  * @param   {string}    url
-                 * 
+                 *
                  */
                 fetch = function (url) {
 
                     // Don't fetch we have the content already
-                    if(cache.hasOwnProperty(url)) {
-                        return;
-                    }
+                    if(cache.hasOwnProperty(url)) return;
 
                     cache = utility.clearIfOverCapacity(cache, options.pageCacheSize);
-                    
+
                     cache[url] = { status: "fetching" };
 
                     var requestUrl  = options.alterRequestUrl(url) || url,
@@ -455,9 +459,9 @@
 
                     // Store contents in cache variable if successful
                     request.success(function (html) {
-                        // Clear cache varible if it"s getting too big
+                        // Clear cache varible if it's getting too big
                         utility.storePageIn(cache, url, html);
-                        $container.data("smoothState").cache = cache;
+                        $container.data('smoothState').cache = cache;
                     });
 
                     // Mark as error
@@ -469,7 +473,7 @@
                  * Binds to the hover event of a link, used for prefetching content
                  *
                  * @param   {object}    event
-                 * 
+                 *
                  */
                 hoverAnchor = function (event) {
                     var $anchor = $(event.currentTarget),
@@ -484,14 +488,16 @@
                  * Binds to the click event of a link, used to show the content
                  *
                  * @param   {object}    event
-                 * 
+                 *
                  */
                 clickAnchor = function (event) {
-                    var $anchor     = $(event.currentTarget),
-                        url         = $anchor.prop("href");
+                    options.onClick(event);
 
-                    // Ctrl (or Cmd) + click must open a new tab
-                    if (!event.metaKey && !event.ctrlKey && utility.shouldLoad($anchor, options.blacklist)) {
+                    var $anchor     = $(event.currentTarget),
+                        url         = $anchor.prop("href"),
+                        $container  = $(event.delegateTarget);
+
+                    if (utility.shouldLoad($anchor, options.blacklist)) {
                         // stopPropagation so that event doesn't fire on parent containers.
                         event.stopPropagation();
                         event.preventDefault();
@@ -503,7 +509,7 @@
                  * Binds all events and inits functionality
                  *
                  * @param   {object}    event
-                 * 
+                 *
                  */
                 bindEventHandlers = function ($element) {
                     //@todo: Handle form submissions
@@ -517,10 +523,10 @@
 
                 /** Used to restart css animations with a class */
                 toggleAnimationClass = function (classname) {
-                    var classes = $container.addClass(classname).prop("class");
-                    
+                    var classes = $container.addClass(classname).prop('class');
+
                     $container.removeClass(classes);
-                    
+
                     setTimeout(function(){
                         $container.addClass(classes);
                     },0);
@@ -528,15 +534,15 @@
                     $container.one("ss.onStartEnd ss.onProgressEnd ss.onEndEnd", function(){
                         $container.removeClass(classname);
                     });
-                    
+
                 };
 
-            /** Merge defaults and global options into current configuration */
-            options = $.extend( {}, $.fn.smoothState.options, options );
+            /** Override defaults with options passed in */
+            options = $.extend(defaults, options);
 
             /** Sets a default state */
-            if(window.history.state === null) {
-                window.history.replaceState({ id: $container.prop("id") }, document.title, currentHref);
+            if(history.state === null) {
+                history.replaceState({ id: $container.prop('id') }, document.title, currentHref);
             }
 
             /** Stores the current page in cache variable */
@@ -562,9 +568,9 @@
         declareSmoothState = function ( options ) {
             return this.each(function () {
                 // Checks to make sure the smoothState element has an id and isn't already bound
-                if(this.id && !$.data(this, "smoothState")) {
-                    // Makes public methods available via $("element").data("smoothState");
-                    $.data(this, "smoothState", new SmoothState(this, options));
+                if(this.id && !$.data(this, 'smoothState')) {
+                    // Makes public methods available via $('element').data('smoothState');
+                    $.data(this, 'smoothState', new SmoothState(this, options));
                 } else if (!this.id && consl) {
                     // Throw warning if in development mode
                     consl.warn("Every smoothState container needs an id but the following one does not have one:", this);
@@ -580,8 +586,5 @@
 
     /** Defines the smoothState plugin */
     $.fn.smoothState = declareSmoothState;
-
-    /* expose the default options */
-    $.fn.smoothState.options = defaults;
 
 })(jQuery, window, document);
