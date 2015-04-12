@@ -9,6 +9,7 @@ jquery.smoothState.js
 	* [development](#development)
 	* [pageCacheSize](#pagecachesize)
 	* [alterRequestUrl](#alterrequesturl)
+	* [pageNumberDataAttr](#pagenumberdataattr)
 * [Callbacks](#callbacks)
 	* [onStart](#onstart)
 	* [onProgress](#onprogress)
@@ -58,6 +59,9 @@ smoothState.js will store pages in memory if pageCacheSize is set to anything gr
 
 ### `alterRequestUrl`
 A function that defines any alterations needed on the URL that is used to request content from the server. The function should return a string that is a valid URL. This is useful when dealing with applications that have layout controls or when needing to inavlidate the cache.
+
+### `pageNumberDataAttr`
+A data attribute that holds the number of the page we're currently on or navigating away from. Can be on any element. The value of the attribute is pushed along with the id of the `$container` to the `pushState` history API method.
 
 ## Callbacks
 
