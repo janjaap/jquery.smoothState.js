@@ -91,7 +91,14 @@
             /** Run when content has been injected and all animations are complete  */
             callback : function(url, $container, $content) {
 
-            }
+            },
+
+            /**
+             * Data attribute that is used to store the number of the current page
+             * This number is passed along with the id of the main element to the pushState
+             * method.
+             */
+            pageNumberDataAttr: ''
         },
 
         /** Utility functions that are decoupled from SmoothState */
@@ -356,8 +363,15 @@
                                 }
 
                                 if(!isPopped) {
-                                    var pageNumber = $(cache[url].html).find('.main-wrapper').attr('data-page');
-                                    history.pushState({ id: $container.prop('id'), page: pageNumber }, cache[url].title, url);
+                                    var pageNumber;
+                                    var pushStateObj = { id: $container.prop('id') };
+
+                                    if (options.pageNumberDataAttr !== '') {
+                                        pageNumber = $(cache[url].html).find('[' + options.pageNumberDataAttr + ']').attr(options.pageNumberDataAttr);
+                                        pushStateObj.page = pageNumber;
+                                    }
+
+                                    history.pushState(pushStateObj, cache[url].title, url);
                                 }
                             },
 
