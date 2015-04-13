@@ -64,7 +64,7 @@ A function that defines any alterations needed on the URL that is used to reques
 ### `pageNumberDataAttr`
 A string representing a data attribute that holds the number of the page we're currently on or navigating away from. Should be placed on the anchor that navigates to that page. The value of the attribute is pushed along with the id of the `$container` to the `pushState` history API method.
 
-### `pageNumberDataAttr`
+### `pageNumberQuerySelector`
 A string that defines the element that holds the aformentioned `pageNumberDataAttr`.
 
 ## Callbacks
