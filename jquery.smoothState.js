@@ -22,7 +22,6 @@
     }
     /** Abort if smoothstate is already present **/
     if ($.fn.smoothState) {
-        console.log('returning');
         return;
     }
 
@@ -98,7 +97,12 @@
              * This number is passed along with the id of the main element to the pushState
              * method.
              */
-            pageNumberDataAttr: ''
+            pageNumberDataAttr: '',
+
+            /**
+             * Selector that holds the number for the current page
+             */
+            pageNumberQuerySelector: ''
         },
 
         /** Utility functions that are decoupled from SmoothState */
@@ -366,8 +370,8 @@
                                     var pageNumber;
                                     var pushStateObj = { id: $container.prop('id') };
 
-                                    if (options.pageNumberDataAttr !== '') {
-                                        pageNumber = $(cache[url].html).find('[' + options.pageNumberDataAttr + ']').attr(options.pageNumberDataAttr);
+                                    if (options.pageNumberDataAttr !== '' && options.pageNumberQuerySelector !== '') {
+                                        pageNumber = $(cache[url].html).find(options.pageNumberQuerySelector).attr(options.pageNumberDataAttr);
                                         pushStateObj.page = pageNumber;
                                     }
 
